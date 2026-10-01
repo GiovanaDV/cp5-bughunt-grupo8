@@ -1,6 +1,7 @@
 package br.com.fiap.petfiap.service;
 
 import br.com.fiap.petfiap.exception.AtendimentoNaoEncontradoException;
+import java.time.LocalDateTime;
 import br.com.fiap.petfiap.exception.HorarioOcupadoException;
 import br.com.fiap.petfiap.model.Atendimento;
 import br.com.fiap.petfiap.repository.AtendimentoRepository;
@@ -18,6 +19,9 @@ public class AgendaService {
 
     // Agenda um novo atendimento: recusa horario ja ocupado pelo mesmo pet.
     public Atendimento agendar(Atendimento novo) {
+    	if (novo.getDataHora().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Nao e possivel agendar no passado");
+        }
         List<Atendimento> doPet = repository.findByPetNome(novo.getPetNome());
         for (Atendimento a : doPet) {
         	// == compara referencias e nao conteudo!

@@ -31,13 +31,13 @@
 
 | # | Sintoma observado (o que fiz/vi) | Causa raiz (arquivo e linha aproximada) | Correção aplicada | Conceito da disciplina |
 |---|---|---|---|---|
-| bug01 | | | | |
-| bug02 | | | | |
-| bug03 | | | | |
-| bug04 | | | | |
-| bug05 | | | | |
-| bug06 | | | | |
-| bug07 | | | | |
+| bug01 |Rodei a suíte: deveManterUmaUnicaInstancia falhou (esperava o mesmo objeto, veio outro) e deveGerarProtocolosSequenciais falhou (esperado 2, veio 1). O console imprimiu "GeradorProtocolo criado!" 5 vezes. |GeradorProtocolo.getInstancia() (~linha 16): fazia return new GeradorProtocolo() sem guardar a instância no campo static, então cada chamada criava um gerador novo com contador = 0. |Atribuí o resultado ao campo: instancia = new GeradorProtocolo(); dentro do if (instancia == null) e retornei instancia. |Padrão Singleton (Aula 14); atributos static |
+| bug02 |devePreencherOsDadosDoPetNaConsulta falhou: esperado <Mimi>, veio <null>. |ConsultaVeterinaria, construtor com parâmetros (~linha 14): chamava super() (construtor vazio) e descartava os parâmetros, deixando todos os campos nulos. |Troquei por super(protocolo, petNome, petPorte, tutorNome, dataHora);. |Herança e construtores; chamada ao construtor da superclasse com super (POO) |
+| bug03 |deveCriarTosaQuandoTipoForTosa falhou: tipo esperado Tosa, veio Banho. |AtendimentoFactory.criar() (~linha 15): o case "TOSA" instanciava new Banho(...) (copiar e colar sem ajustar). |Troquei por case "TOSA" -> new Tosa(p, n, po, tu, d);. |Padrão Factory (Aula 14); polimorfismo |
+| bug04 |deveMontarAtendimentoCompleto falhou: esperado <Rex>, veio <null>. O Eclipse avisava "The assignment to variable petNome has no effect". |AtendimentoBuilder.comPet() (~linha 24): petNome = petNome; atribuía o parâmetro a ele mesmo, e o atributo da classe nunca recebia o valor. |Troquei por this.petNome = petNome;. |Padrão Builder (Aula 14); palavra-chave this e escopo de variáveis (POO) |
+| bug05 |deveRecusarMontagemSemNomeDoPet e deveRecusarMontagemSemPorte falharam: esperava IllegalArgumentException, mas nada foi lançado. |AtendimentoBuilder.construir() (~linha 40): não validava os campos obrigatórios (o comentário delegava a validação ao controller), então o objeto nascia inválido. |Adicionei, antes do return, a validação de petNome e petPorte (nulo ou em branco) lançando IllegalArgumentException com mensagem clara, e atualizei o comentário. |Padrão Builder: objeto só nasce válido; validação e exceções (Aula 11) |
+| bug06 |deveLancarExcecaoQuandoAtendimentoNaoExiste falhou: esperava AtendimentoNaoEncontradoException, mas nada foi lançado (o método retornava null). |AgendaService.buscarPorId() (~linha 36): o catch (Exception e) { return null; } engolia a exceção do orElseThrow. Esse null também causaria NullPointerException em concluir() e cancelar(). |Removi o try/catch, mantendo só o orElseThrow, para a exceção chegar a quem chamou (o controller trata e devolve 404). |Exceções customizadas (Aula 11); catch genérico que engole erro |
+| bug07 |deveRecusarAgendamentoComHorarioJaOcupado falhou com NullPointerException em AgendaService.agendar (linha 30) em vez de HorarioOcupadoException. |AgendaService.agendar() (~linha 24): usava == para comparar petNome (String) e dataHora (LocalDateTime), o que compara referências de objeto e não o conteúdo. O conflito nunca era detectado, o fluxo chegava ao save() e o resultado do mock era null. |Troquei por a.getPetNome().equals(novo.getPetNome()) && a.getDataHora().equals(novo.getDataHora()) |== vs equals(); comparação de objetos (POO); regra de conflito de horário no service |
 | bug08 | | | | |
 | bug09 | | | | |
 | bug10 | | | | |

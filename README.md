@@ -38,10 +38,10 @@
 | bug05 |deveRecusarMontagemSemNomeDoPet e deveRecusarMontagemSemPorte falharam: esperava IllegalArgumentException, mas nada foi lançado. |AtendimentoBuilder.construir() (~linha 40): não validava os campos obrigatórios (o comentário delegava a validação ao controller), então o objeto nascia inválido. |Adicionei, antes do return, a validação de petNome e petPorte (nulo ou em branco) lançando IllegalArgumentException com mensagem clara, e atualizei o comentário. |Padrão Builder: objeto só nasce válido; validação e exceções (Aula 11) |
 | bug06 |deveLancarExcecaoQuandoAtendimentoNaoExiste falhou: esperava AtendimentoNaoEncontradoException, mas nada foi lançado (o método retornava null). |AgendaService.buscarPorId() (~linha 36): o catch (Exception e) { return null; } engolia a exceção do orElseThrow. Esse null também causaria NullPointerException em concluir() e cancelar(). |Removi o try/catch, mantendo só o orElseThrow, para a exceção chegar a quem chamou (o controller trata e devolve 404). |Exceções customizadas (Aula 11); catch genérico que engole erro |
 | bug07 |deveRecusarAgendamentoComHorarioJaOcupado falhou com NullPointerException em AgendaService.agendar (linha 30) em vez de HorarioOcupadoException. |AgendaService.agendar() (~linha 24): usava == para comparar petNome (String) e dataHora (LocalDateTime), o que compara referências de objeto e não o conteúdo. O conflito nunca era detectado, o fluxo chegava ao save() e o resultado do mock era null. |Troquei por a.getPetNome().equals(novo.getPetNome()) && a.getDataHora().equals(novo.getDataHora()) |== vs equals(); comparação de objetos (POO); regra de conflito de horário no service |
-| bug08 | | | | |
-| bug09 | | | | |
-| bug10 | | | | |
-| bug11 | | | | |
+| bug08 |Escrevi o teste01 (preço do Banho por porte) e ele falhou em BanhoPrecoTest:19: expected: <60.0> but was: <100.0>. |Banho.calcularPreco() (~linha 25): valores invertidos, PEQUENO retornava 100 e GRANDE 60. Os testes existentes só cobriam pontos e duração, então ninguém notou. |Ajustei para PEQUENO 60, MEDIO 80 e GRANDE 100, conforme o contrato. |Regra de negócio no model; cobertura de testes (JUnit, Aula 15) |
+| bug09 |Escrevi o teste02 (duração da Tosa) e ele falhou: expected: <60> but was: <30>. |Tosa (~linha 38): o método getDuracaoMinutos(String porte) tem assinatura diferente da classe pai, então é sobrecarga e não sobrescrita. O polimorfismo continuava usando o método da Atendimento, que devolve 30. |Troquei por @Override public int getDuracaoMinutos() retornando 60. |Sobrescrita (@Override) vs sobrecarga; polimorfismo (POO) |
+| bug10 |Escrevi o teste03 (cancelar atendimento concluído) e ele falhou: nada foi lançado e o atendimento realizado virou CANCELADO. |Atendimento.cancelar() (~linha 62): só fazia status = "CANCELADO", sem checar o status atual, ao contrário do concluir(). |Adicionei a checagem !"AGENDADO".equals(status) lançando StatusInvalidoException. |Encapsulamento das regras de transição de status no model; exceções customizadas (Aula 11) |
+| bug11 |Escrevi o teste04 (agendar com data de ontem) e ele falhou: nenhuma IllegalArgumentException foi lançada e o repository foi consultado. |AgendaService.agendar() (~linha 22): não validava a data antes de acessar o repository. |Adicionei a checagem isBefore(LocalDateTime.now()) no início do método, lançando IllegalArgumentException. |Validação antes de acessar o banco (fail fast); Mockito verifyNoInteractions (Aula 15) |
 | bug12 | | | | |
 
 ## Parte 2 — Ajustes de Clean Code
@@ -64,12 +64,12 @@
 
 | # | Teste escrito (classe.método) | Regra coberta | Resultado ao escrever (vermelho/verde) |
 |---|---|---|---|
-| teste01 | | | |
-| teste02 | | | |
-| teste03 | | | |
-| teste04 | | | |
-| teste05 | | | |
-| teste06 | | | |
+| teste01 |BanhoPrecoTest.deveCobrarPrecoPorPorteQuandoCalcularPrecoDoBanho |Banho: preço por porte (PEQUENO R$ 60, MEDIO R$ 80, GRANDE R$ 100). |Vermelho: expected: <60.0> but was: <100.0>. Revelou o bug08 (preço do Banho invertido). |
+| teste02 |TosaDuracaoTest.deveDurar60MinutosQuandoAtendimentoForTosa |Tosa dura 60 minutos. |Vermelho: expected: <60> but was: <30>. Revelou o bug09 (sobrecarga em vez de sobrescrita). |
+| teste03 |CancelamentoTest.deveRecusarCancelamentoQuandoAtendimentoJaEstiverConcluido |cancelar() recusa atendimento já realizado (CONCLUIDO) com StatusInvalidoException. |Vermelho: Expected StatusInvalidoException to be thrown, but nothing was thrown. Revelou o bug10 (cancelar() sem validar status). |
+| teste04 |AgendaServicePassadoTest.deveRecusarAgendamentoQuandoDataForNoPassado |Agendar com data/hora no passado lança IllegalArgumentException e o banco nem é consultado. |Vermelho: esperava IllegalArgumentException, veio NullPointerException. Revelou o bug11 (sem validação de data). |
+| teste05 |ConsultaPrecoTest.deveCobrar150ReaisQuandoConsultaForDeQualquerPorte |Consulta tem preço fixo de R$ 150 em qualquer porte. |Verde de cara: a regra já estava correta, o teste protege contra regressões. |
+| teste06 |AgendaServiceCancelamentoTest.deveCancelarAtendimentoQuandoStatusForAgendado |Cancelar pelo service um atendimento AGENDADO muda o status para CANCELADO e salva. |Verde de cara: a regra já estava correta, o teste protege contra regressões. |
 
 ---
 

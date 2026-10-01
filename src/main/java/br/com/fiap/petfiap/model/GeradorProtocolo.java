@@ -15,10 +15,10 @@ public class GeradorProtocolo {
     }
 
     public static GeradorProtocolo getInstancia() {
-        if (instancia == null) {
-            return new GeradorProtocolo();
-        }
-        return instancia;
+    	if (instancia == null) {
+    	    instancia = new GeradorProtocolo(); // new não era guardado
+    	}
+    	return instancia;
     }
 
     public int proximo() {

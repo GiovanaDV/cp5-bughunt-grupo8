@@ -23,13 +23,13 @@ public class Banho extends Atendimento {
     }
 
     @Override
-    public double calcularPreco() {
+    public double calcularPreco() { // valores invertidos de pequeno e grande
         if ("PEQUENO".equals(getPetPorte())) {
-            return 100.0;
+            return 60.0;
         } else if ("MEDIO".equals(getPetPorte())) {
             return 80.0;
         }
-        return 60.0;
+        return 100.0;
     }
 
     @Override

@@ -13,15 +13,17 @@ public class GeradorProtocolo {
         contador = 0;
     }
     
-    public static GeradorProtocolo getInstancia() {
-    	if (instancia == null) {
-    	    instancia = new GeradorProtocolo(); // new não era guardado
-    	}
-    	return instancia;
+    public static synchronized GeradorProtocolo getInstancia() {
+        if (instancia == null) {
+            instancia = new GeradorProtocolo();
+        }
+        return instancia;
     }
 
-    public int proximo() {
+    public synchronized int proximo() {
         contador++;
         return contador;
     }
+    
+    
 }

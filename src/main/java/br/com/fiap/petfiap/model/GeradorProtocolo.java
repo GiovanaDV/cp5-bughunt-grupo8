@@ -11,9 +11,8 @@ public class GeradorProtocolo {
 
     private GeradorProtocolo() {
         contador = 0;
-        System.out.println("GeradorProtocolo criado!");
     }
-
+    
     public static GeradorProtocolo getInstancia() {
     	if (instancia == null) {
     	    instancia = new GeradorProtocolo(); // new não era guardado

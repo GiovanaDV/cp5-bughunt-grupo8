@@ -17,10 +17,10 @@
 
 | Campo | |
 |---|---|
-| **Total de bugs corrigidos** | ___ / 12 |
-| **Total de ajustes de Clean Code** | ___ / 6 |
-| **Total de testes novos escritos** | ___ / 6 |
-| **Suíte final (Run As → JUnit Test)** | ___ testes, ___ falhas |
+| **Total de bugs corrigidos** | 11 / 12 |
+| **Total de ajustes de Clean Code** | 6 / 6 |
+| **Total de testes novos escritos** | 6 / 6 |
+| **Suíte final (Run As → JUnit Test)** | 26 testes, 0 falhas |
 
 ---
 
@@ -48,12 +48,12 @@
 
 | # | Onde estava | Qual princípio/boas práticas era violado | O que eu mudei |
 |---|---|---|---|
-| clean01 | | | |
-| clean02 | | | |
-| clean03 | | | |
-| clean04 | | | |
-| clean05 | | | |
-| clean06 | | | |
+| clean01|AtendimentoFactory.criar(): parâmetros p, t, n, po, tu, d |Nomes significativos / revelar a intenção. Nomes de uma letra obrigam o leitor a adivinhar o que cada parâmetro representa (e n, po, tu ainda se confundem entre si). |Renomeei para protocolo, tipo, petNome, porte, tutorNome, dataHora, sem alterar o comportamento. |
+| clean02 |AtendimentoController: método privado calcularDescontoFidelidade(int) e bloco de comentário "Fidelidade (futuro)" |Código morto e YAGNI (You Aren't Gonna Need It). O método nunca era chamado e implementava uma funcionalidade ainda não aprovada, poluindo a classe. Também corrigi um comentário que citava ?tutorNome=Ana no endpoint errado. |Removi o método e o bloco de comentário. Ajustei o comentário do agendar para POST /api/atendimentos - Agendar atendimento. |
+| clean03 |AgendaService.agendar(): System.out.println("Recibo: ...") |Separação de responsabilidades. O service de regra de negócio imprimia no console (efeito colateral de debug). Além disso, chamava salvo.getProtocolo() e quebrava com NullPointerException quando o repository era mockado. |Removi o println e passei a retornar direto repository.save(novo). |
+| clean04 |GeradorProtocolo: System.out.println("GeradorProtocolo criado!") no construtor |Sem efeitos colaterais desnecessários / sem lixo de depuração. Um Singleton não deve poluir o console; o log ainda tornava visível o bug de várias instâncias, mas não pertence ao código final. |Removi o println do construtor, que ficou só com contador = 0. |
+| clean05 |Atendimento e AgendaService: strings "AGENDADO", "CONCLUIDO" e "CANCELADO" repetidas em vários pontos |Evitar "magic strings" / DRY (Don't Repeat Yourself). Um erro de digitação passaria despercebido pelo compilador e mudar um status exigiria alterar vários lugares. |Criei as constantes STATUS_AGENDADO, STATUS_CONCLUIDO e STATUS_CANCELADO em Atendimento e as usei no model e no service. |
+| clean06 |GeradorProtocolo: comentário dizia "Thread-safe", mas getInstancia() e proximo() não eram sincronizados |Comentários que não mentem / código coerente com a documentação. Em acesso concorrente, duas requisições poderiam criar dois geradores ou receber o mesmo protocolo. |Adicionei synchronized em getInstancia() e proximo(), tornando a classe realmente thread-safe como o comentário prometia. |
 
 ## Parte 3 — Testes novos (regras que estavam sem cobertura)
 

@@ -11,12 +11,13 @@ import java.time.LocalDateTime;
 // O resto do codigo depende apenas do tipo abstrato Atendimento.
 public class AtendimentoFactory {
 
-    public static Atendimento criar(int p, String t, String n, String po, String tu, LocalDateTime d) {
-        return switch (t) {
-            case "BANHO" -> new Banho(p, n, po, tu, d);
-            case "TOSA" -> new Tosa(p, n, po, tu, d); // nao criava TOSA, e sim BANHO
-            case "CONSULTA" -> new ConsultaVeterinaria(p, n, po, tu, d);
-            default -> throw new IllegalArgumentException("Tipo invalido: " + t);
-        };
-    }
+	public static Atendimento criar(int protocolo, String tipo, String petNome, String porte,
+            String tutorNome, LocalDateTime dataHora) {
+			return switch (tipo) {
+				case "BANHO" -> new Banho(protocolo, petNome, porte, tutorNome, dataHora);
+				case "TOSA" -> new Tosa(protocolo, petNome, porte, tutorNome, dataHora);
+				case "CONSULTA" -> new ConsultaVeterinaria(protocolo, petNome, porte, tutorNome, dataHora);
+				default -> throw new IllegalArgumentException("Tipo invalido: " + tipo);
+		};
+	}
 }
